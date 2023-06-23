@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import {usePage} from '@inertiajs/react'
-import { InertiaLink } from "@inertiajs/inertia-react";
+import { InertiaLink, useRemember } from "@inertiajs/inertia-react";
 
 const Index = () => {
     const { posts } = usePage().props
+
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const filteredPosts = posts.filter(
+        (post) =>
+            post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.body.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleSearchInputChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
 
     return (
         <div>
@@ -13,11 +25,18 @@ const Index = () => {
                     <InertiaLink
                         className="px-6 py-2 text-white bg-green-500 rounded-md focus:outline-none"
                         href={route("posts.create")}
-
                     >
                         Create Post
                     </InertiaLink>
-                </div>
+
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                />
+            </div>
 
                 <div className="overflow-x-auto bg-white rounded shadow">
                     <table className="w-full whitespace-nowrap">
@@ -30,7 +49,7 @@ const Index = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {posts.map(({ id, title, body }) => (
+                        {filteredPosts.map(({ id, title, body }) => (
                             <tr key={id} className="">
                                 <td className="border-t">
                                     <InertiaLink
@@ -77,7 +96,7 @@ const Index = () => {
                                 </td>
                             </tr>
                         ))}
-                        {posts.length === 0 && (
+                        {filteredPosts.length === 0 && (
                             <tr>
                                 <td className="px-6 py-4 border-t" colSpan="4">
                                     No contacts found.

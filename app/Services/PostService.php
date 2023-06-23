@@ -34,6 +34,27 @@ class PostService {
     }
 
     /**
+     * @param $request
+     * @return JsonResponse|Response
+     */
+    public function searchPosts($request): JsonResponse|Response
+    {
+        try {
+            $query = $request->input('query');
+
+            $posts = Post::where('title', 'like', "%{$query}%")
+                ->orWhere('body', 'like', "%{$query}%")
+                ->get();
+
+            return Inertia::render('Post/Index', [
+                'posts' => $posts,
+            ]);
+        } catch (\Exception $e) {
+            return $this->getErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
      * @return JsonResponse|Response
      */
     public function createPost(): JsonResponse|Response

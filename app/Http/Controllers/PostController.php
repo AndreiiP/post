@@ -9,6 +9,8 @@ use App\Traits\JsonResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
+use Illuminate\Http\Request;
+
 
 class PostController extends Controller
 {
@@ -28,6 +30,14 @@ class PostController extends Controller
         return $this->postService->getPosts();
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function search(Request $request): JsonResponse|Response
+    {
+        return $this->postService->searchPosts($request);
+    }
 
     /**
      * @return JsonResponse|Response
