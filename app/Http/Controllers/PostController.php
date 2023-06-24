@@ -25,7 +25,7 @@ class PostController extends Controller
     /**
      * @return JsonResponse|Response
      */
-    public function index(): \Illuminate\Http\JsonResponse|\Inertia\Response
+    public function index(): JsonResponse|Response
     {
         return $this->postService->getPosts();
     }

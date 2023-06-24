@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import {usePage} from '@inertiajs/react'
-import { InertiaLink, useRemember } from "@inertiajs/inertia-react";
+import { usePage } from '@inertiajs/react';
+import { InertiaLink } from "@inertiajs/inertia-react";
 
 const Index = () => {
-    const { posts } = usePage().props
+    const { posts } = usePage().props;
+    const data = posts.data;
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredPosts = posts.filter(
+    const filteredPosts = data.filter(
         (post) =>
             post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             post.body.toLowerCase().includes(searchQuery.toLowerCase())
@@ -29,14 +30,14 @@ const Index = () => {
                         Create Post
                     </InertiaLink>
 
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                />
-            </div>
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchQuery}
+                        onChange={handleSearchInputChange}
+                    />
+                </div>
 
                 <div className="overflow-x-auto bg-white rounded shadow">
                     <table className="w-full whitespace-nowrap">
@@ -99,16 +100,28 @@ const Index = () => {
                         {filteredPosts.length === 0 && (
                             <tr>
                                 <td className="px-6 py-4 border-t" colSpan="4">
-                                    No contacts found.
+                                    No posts found.
                                 </td>
                             </tr>
                         )}
                         </tbody>
                     </table>
                 </div>
+                <div className="flex justify-center mt-6">
+                    {posts.links.map((link, index) => (
+                        <InertiaLink
+                            key={index}
+                            href={link.url}
+                            className={`px-4 py-2 mx-1 text-sm rounded ${
+                                link.active ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-600"
+                            }`}
+                        >
+                            {link.label === "Next &raquo;" ? "»" : link.label === "&laquo; Previous" ? "«" : link.label}
+                        </InertiaLink>
+                    ))}
+                </div>
             </div>
         </div>
-
     );
 };
 

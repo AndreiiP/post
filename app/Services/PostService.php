@@ -23,11 +23,16 @@ class PostService {
     /**
      * @return JsonResponse|Response
      */
-    public function getPosts(): \Illuminate\Http\JsonResponse|Response
+    public function getPosts(): JsonResponse|Response
     {
         try {
-            $posts = Post::latest()->get();
-            return Inertia::render('Post/Index', ['posts' => $posts ]);
+            return Inertia::render('Post/Index', [
+                'posts' => Post::orderBy('created_at', 'desc')->paginate(5)->through(fn($post) => [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'body' => $post->body
+                ])
+            ]);
         } catch (\Exception $e) {
             return $this->getErrorResponse($e->getMessage());
         }
