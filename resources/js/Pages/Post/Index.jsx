@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { usePage } from '@inertiajs/react';
+import {router, usePage} from '@inertiajs/react';
 import { InertiaLink } from "@inertiajs/inertia-react";
 
 const Index = () => {
-    const { posts } = usePage().props;
+    const { posts, errors } = usePage().props;
     const data = posts.data;
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -16,6 +16,16 @@ const Index = () => {
 
     const handleSearchInputChange = (event) => {
         setSearchQuery(event.target.value);
+    };
+
+    const handleDelete = (postId) => {
+        if (confirm("Are you sure you want to delete this post?")) {
+            router.delete(`/posts/${postId}`,  {
+                onError: (errors) => {
+                    console.error(errors);
+                },
+            })
+        }
     };
 
     return (
@@ -94,6 +104,13 @@ const Index = () => {
                                     >
                                         Show
                                     </InertiaLink>
+                                    <button
+                                        tabIndex="3"
+                                        className="ml-3 px-4 py-2 text-sm text-white bg-red-500 rounded"
+                                        onClick={() => handleDelete(id)}
+                                    >
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         ))}

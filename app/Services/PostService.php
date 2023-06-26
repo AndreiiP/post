@@ -138,15 +138,15 @@ class PostService {
 
     /**
      * @param Post $post
-     * @return JsonResponse|RedirectResponse
+     * @return RedirectResponse
      */
-    public function deletePost(Post $post): JsonResponse|RedirectResponse
+    public function deletePost(Post $post): RedirectResponse
     {
         try {
             $post->delete();
-            return Redirect::route('posts.index');
-        } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+            return to_route('posts.index');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 }
