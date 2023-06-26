@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,3 +22,7 @@ Route::get('/', function () {
 });
 
 Route::resource('posts', PostController::class);
+
+Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/posts/{id}/comments', [CommentController::class, 'store']);
+

@@ -7,7 +7,6 @@ use App\Models\Post;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,9 +39,9 @@ class PostService {
 
     /**
      * @param $request
-     * @return JsonResponse|Response
+     * @return Response|RedirectResponse
      */
-    public function searchPosts($request): JsonResponse|Response
+    public function searchPosts($request): Response|RedirectResponse
     {
         try {
             $query = $request->input('query');
@@ -54,20 +53,20 @@ class PostService {
             return Inertia::render('Post/Index', [
                 'posts' => $posts,
             ]);
-        } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     /**
-     * @return JsonResponse|Response
+     * @return Response|RedirectResponse
      */
-    public function createPost(): JsonResponse|Response
+    public function createPost(): Response|RedirectResponse
     {
         try {
             return Inertia::render('Post/Create');
-        } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
@@ -84,29 +83,31 @@ class PostService {
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     /**
      * @param int $id
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function showPost(int $id): Response
+    public function showPost(int $id): Response|RedirectResponse
     {
-        $post = Post::find($id);
-
-        return Inertia::render('Post/Snow', [
-            'post' => $post
-        ]);
+        try {
+            $post = Post::with('comments')->find($id);
+            return Inertia::render('Post/Snow', [
+                'post' => $post
+            ]);
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
-
 
     /**
      * @param Post $post
-     * @return JsonResponse|Response
+     * @return Response|RedirectResponse
      */
-    public function editPost(Post $post): JsonResponse|Response
+    public function editPost(Post $post): Response|RedirectResponse
     {
         try {
             return Inertia::render('Post/Edit', [
@@ -116,25 +117,26 @@ class PostService {
                     'body' => $post->body
                 ]
             ]);
-        } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     /**
      * @param Post $post
      * @param $request
-     * @return JsonResponse|RedirectResponse
+     * @return RedirectResponse
      */
-    public function updatePost(Post $post, $request): JsonResponse|RedirectResponse
+    public function updatePost(Post $post, $request): RedirectResponse
     {
         try {
             $post->update($request->validated());
-            return Redirect::route('posts.index');
-        } catch (\Exception $e) {
-            return $this->getErrorResponse($e->getMessage());
+            return to_route('posts.index');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
 
     /**
      * @param Post $post

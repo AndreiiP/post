@@ -47,7 +47,6 @@ class PostController extends Controller
         return $this->postService->createPost();
     }
 
-
     /**
      * @param StorePostRequest $request
      * @return JsonResponse|RedirectResponse
@@ -59,22 +58,21 @@ class PostController extends Controller
 
     /**
      * @param string $id
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function show(string $id): Response
+    public function show(string $id): Response|RedirectResponse
     {
         return $this->postService->showPost($id);
     }
 
     /**
      * @param Post $post
-     * @return JsonResponse|Response
+     * @return Response|RedirectResponse
      */
-    public function edit(Post $post): JsonResponse|Response
+    public function edit(Post $post): Response|RedirectResponse
     {
         return $this->postService->editPost($post);
     }
-
 
     /**
      * @param Post $post

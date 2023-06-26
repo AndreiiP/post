@@ -1,15 +1,27 @@
 import React from "react";
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
+import {router} from "@inertiajs/react";
+import { useState } from 'react';
 
 const Create = () => {
-    const { data, setData, errors, post } = useForm({
+    const { data, setData } = useForm({
         title: "",
         body: "",
     });
 
+    const [errors, setErrors] = useState({});
+
     function handleSubmit(e) {
         e.preventDefault();
-        post(route("posts.store"));
+
+        router.post(`/posts`, {
+            title: data.title,
+            body: data.body,
+        }, {
+            onError: (errors) => {
+                setErrors(errors);
+            },
+        });
     }
 
     return (
@@ -38,13 +50,9 @@ const Create = () => {
                                     label="Title"
                                     name="title"
                                     value={data.title}
-                                    onChange={(e) =>
-                                        setData("title", e.target.value)
-                                    }
+                                    onChange={(e) => setData("title", e.target.value)}
                                 />
-                                <span className="text-red-600">
-                                    {errors.title}
-                                </span>
+                                <span className="text-red-600">{errors.title}</span>
                             </div>
                             <div className="mb-0">
                                 <label className="">Body</label>
@@ -55,13 +63,9 @@ const Create = () => {
                                     name="body"
                                     errors={errors.body}
                                     value={data.body}
-                                    onChange={(e) =>
-                                        setData("body", e.target.value)
-                                    }
+                                    onChange={(e) => setData("body", e.target.value)}
                                 />
-                                <span className="text-red-600">
-                                    {errors.body}
-                                </span>
+                                <span className="text-red-600">{errors.body}</span>
                             </div>
                         </div>
                         <div className="mt-4">
