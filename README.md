@@ -2,4 +2,4 @@
 
 ### Installation
 	1) composer install
-	2) bash .install.sh
+	2) bash install.sh
