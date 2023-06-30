@@ -23,20 +23,12 @@ class PostController extends Controller
     }
 
     /**
-     * @return JsonResponse|Response
-     */
-    public function index(): JsonResponse|Response
-    {
-        return $this->postService->getPosts();
-    }
-
-    /**
      * @param Request $request
      * @return JsonResponse|Response
      */
-    public function search(Request $request): JsonResponse|Response
+    public function index(Request $request): JsonResponse|Response
     {
-        return $this->postService->searchPosts($request);
+        return $this->postService->getPosts($request);
     }
 
     /**

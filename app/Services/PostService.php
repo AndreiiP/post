@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
 use App\Traits\JsonResponseTrait;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
@@ -20,17 +21,17 @@ class PostService {
     use JsonResponseTrait;
 
     /**
+     * @param $request
      * @return JsonResponse|Response
      */
-    public function getPosts(): JsonResponse|Response
+    public function getPosts($request): JsonResponse|Response
     {
         try {
+            $query = $request->input('query');
+            $posts = $this->preparePosts($query, 5);
+
             return Inertia::render('Post/Index', [
-                'posts' => Post::orderBy('created_at', 'desc')->paginate(5)->through(fn($post) => [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'body' => $post->body
-                ])
+                'posts' => $posts,
             ]);
         } catch (\Exception $e) {
             return $this->getErrorResponse($e->getMessage());
@@ -38,24 +39,25 @@ class PostService {
     }
 
     /**
-     * @param $request
-     * @return Response|RedirectResponse
+     * @param $query
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function searchPosts($request): Response|RedirectResponse
+    protected function preparePosts($query, int $perPage = 5): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        try {
-            $query = $request->input('query');
-
-            $posts = Post::where('title', 'like', "%{$query}%")
-                ->orWhere('body', 'like', "%{$query}%")
-                ->get();
-
-            return Inertia::render('Post/Index', [
-                'posts' => $posts,
-            ]);
-        } catch (\Throwable $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+        $queryBuilder = Post::query();
+        if ($query) {
+            $queryBuilder->where('title', 'like', "%{$query}%")
+                ->orWhere('body', 'like', "%{$query}%");
         }
+
+        return $queryBuilder->orderBy('created_at', 'desc')->paginate($perPage)->through(function ($post) {
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'body' => $post->body,
+            ];
+        });
     }
 
     /**
