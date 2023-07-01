@@ -1,7 +1,7 @@
 import { router, usePage } from "@inertiajs/react";
 import { InertiaLink } from "@inertiajs/inertia-react";
-import throttle from 'lodash.throttle';
-
+import debounce from 'lodash.throttle';
+import { useCallback } from 'react';
 
 const PostList = ({posts}) => {
     const handleDelete = (postId) => {
@@ -87,13 +87,15 @@ const Index = () => {
     const { posts, errors } = usePage().props;
     const data = posts.data;
 
-    const throttledHandleSearchInputChange = throttle((event) => {
-        let query = "?query=" + event.target.value;
-
-        router.get(`/posts${query}`, {}, {
-            preserveState: true,
-        });
-    }, 300);
+    const debounceHandleSearchInputChange = useCallback(
+        debounce(event => {
+            let query = "?query=" + event.target.value;
+            router.get(`/posts${query}`, {}, {
+                preserveState: true,
+            });
+        }, 300),
+        [router]
+    );
 
     return (
         <div>
@@ -111,7 +113,7 @@ const Index = () => {
                         type="text"
                         placeholder="Search..."
                         className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onKeyUp={throttledHandleSearchInputChange}
+                        onKeyUp={debounceHandleSearchInputChange}
                     />
                 </div>
 
