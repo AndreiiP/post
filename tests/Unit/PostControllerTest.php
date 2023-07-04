@@ -36,7 +36,10 @@ class PostControllerTest extends TestCase
 
         $controller = new PostController($postService);
 
-        $response = $controller->index();
+        $request = Request::create('/posts', 'GET');
+        $request->query->set('param', 'value');
+
+        $response = $controller->index($request);
 
         $responseData = $response->getData(true);
         $this->assertNull($responseData['errors']);
