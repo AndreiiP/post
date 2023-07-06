@@ -1,19 +1,21 @@
 import { router, usePage } from "@inertiajs/react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import debounce from 'lodash.throttle';
-import { useCallback } from 'react';
+import {useCallback, useState} from 'react';
+import axios from "axios";
 
-const PostList = ({posts}) => {
-    const handleDelete = (postId) => {
-        router.delete(`/posts/${postId}`, {
-            onBefore: () => {
-                confirm('Are you sure you want to delete this post?')
-            },
-            preserveState: true,
-            onError: (errors) => {
-                console.error(errors);
+const PostList = ({ posts, setPostList }) => {
+
+    const handleDelete = async (postId) => {
+        try {
+            const response = await axios.delete(`/posts/${postId}`);
+            if (response.status === 200) {
+                const newPostList = posts.filter(post => post.id !== postId);
+                setPostList(newPostList)
             }
-        });
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -85,7 +87,7 @@ const PostList = ({posts}) => {
 
 const Index = () => {
     const { posts, errors } = usePage().props;
-    const data = posts.data;
+    const [postList, setPostList] = useState(posts.data);
 
     const debounceHandleSearchInputChange = useCallback(
         debounce(event => {
@@ -127,7 +129,7 @@ const Index = () => {
                             <th className="px-6 pt-5 pb-4">Action</th>
                         </tr>
                         </thead>
-                        <PostList posts={data} />
+                        <PostList posts={postList} setPostList={setPostList} />
                     </table>
                 </div>
                 <div className="flex justify-center mt-6">

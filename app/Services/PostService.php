@@ -139,16 +139,14 @@ class PostService {
         }
     }
 
-
     /**
      * @param Post $post
-     * @return RedirectResponse
+     * @return bool|RedirectResponse|null
      */
-    public function deletePost(Post $post): RedirectResponse
+    public function deletePost(Post $post): bool|RedirectResponse|null
     {
         try {
-            $post->delete();
-            return to_route('posts.index');
+            return $post->delete();
         } catch (\Throwable $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

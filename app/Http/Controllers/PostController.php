@@ -78,9 +78,9 @@ class PostController extends Controller
 
     /**
      * @param Post $post
-     * @return RedirectResponse
+     * @return bool|RedirectResponse|null
      */
-    public function destroy(Post $post): RedirectResponse
+    public function destroy(Post $post): bool|RedirectResponse|null
     {
         return $this->postService->deletePost($post);
     }
