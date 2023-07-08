@@ -24,6 +24,7 @@ class PostFactory extends Factory
         return [
             'title' => $this->faker->paragraph(1),
             'body' => $this->faker->realText(),
+            'created_at' => $this->faker->dateTime($max = 'now')
         ];
     }
 }

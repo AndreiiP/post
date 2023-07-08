@@ -1,22 +1,11 @@
 import { router, usePage } from "@inertiajs/react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import debounce from 'lodash.throttle';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import axios from "axios";
+import DeletePopupModal from "../components/modals/DeletePopupModal.jsx";
 
-const PostList = ({ posts, setPostList }) => {
-
-    const handleDelete = async (postId) => {
-        try {
-            const response = await axios.delete(`/posts/${postId}`);
-            if (response.status === 200) {
-                const newPostList = posts.filter(post => post.id !== postId);
-                setPostList(newPostList)
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+const PostList = ({ posts, setShowDeleteConfirmation, setPostId }) => {
 
     return (
         <tbody>
@@ -67,7 +56,10 @@ const PostList = ({ posts, setPostList }) => {
                     <button
                         tabIndex="3"
                         className="ml-3 px-4 py-2 text-sm text-white bg-red-500 rounded"
-                        onClick={() => handleDelete(id)}
+                        onClick={() => {
+                            setShowDeleteConfirmation(true)
+                            setPostId(id)
+                        }}
                     >
                         Delete
                     </button>
@@ -88,19 +80,58 @@ const PostList = ({ posts, setPostList }) => {
 const Index = () => {
     const { posts, errors } = usePage().props;
     const [postList, setPostList] = useState(posts.data);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [postId, setPostId] = useState(0);
 
     const debounceHandleSearchInputChange = useCallback(
         debounce(event => {
             let query = "?query=" + event.target.value;
             router.get(`/posts${query}`, {}, {
+                onSuccess: (page) => {
+                    setPostList(page.props.posts.data)
+                },
                 preserveState: true,
             });
         }, 300),
         [router]
     );
 
+    const handleCancelDelete = () => {
+        setShowDeleteConfirmation(false);
+    };
+
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`/posts/${postId}`);
+            if (response.status === 200) {
+                const newPostList = postList.filter(post => post.id !== postId);
+                setPostList(newPostList)
+                updateUrl(newPostList)
+                setShowDeleteConfirmation(false)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    function updateUrl(newPostList) {
+        if (newPostList.length === 0) {
+            const url = new URL(window.location.href);
+            const currentPage = url.searchParams.get("page");
+            const newPage = currentPage - 1 || currentPage;
+
+            url.searchParams.set("page", newPage.toString());
+            window.history.pushState(null, "", url.toString());
+            window.location.reload();
+        }
+    }
+
+    useEffect(() => {
+        setPostList(posts.data);
+    }, [posts]);
+
     return (
-        <div>
+        <>
             <div className="container mx-auto">
                 <h1 className="mb-8 text-3xl font-bold text-center">Posts</h1>
                 <div className="flex items-center justify-between mb-6">
@@ -129,7 +160,11 @@ const Index = () => {
                             <th className="px-6 pt-5 pb-4">Action</th>
                         </tr>
                         </thead>
-                        <PostList posts={postList} setPostList={setPostList} />
+                        <PostList
+                            posts={postList}
+                            setShowDeleteConfirmation={setShowDeleteConfirmation}
+                            setPostId={setPostId}
+                        />
                     </table>
                 </div>
                 <div className="flex justify-center mt-6">
@@ -146,7 +181,15 @@ const Index = () => {
                     ))}
                 </div>
             </div>
-        </div>
+            {showDeleteConfirmation && (
+                <div className="modal-wrapper">
+                    <DeletePopupModal
+                        onDelete={handleDelete}
+                        onCancel={handleCancelDelete}
+                    />
+                </div>
+            )}
+        </>
     );
 };
 

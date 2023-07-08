@@ -1,8 +1,9 @@
 
-import React from "react";
-import {usePage} from '@inertiajs/react'
-import { Inertia } from "@inertiajs/inertia";
+import React, { useState } from "react";
+import { router, usePage } from '@inertiajs/react'
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
+import axios from "axios";
+import DeletePopupModal from '../components/modals/DeletePopupModal.jsx';
 
 const Edit = () => {
     const { post } = usePage().props;
@@ -10,15 +11,27 @@ const Edit = () => {
         title: post.title || "",
         body: post.body || "",
     });
-
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
     function handleSubmit(e) {
         e.preventDefault();
         put(route("posts.update", post.id));
     }
-    function destroy() {
-        if (confirm("Are you sure you want to delete this user?")) {
-            Inertia.delete(route("posts.destroy", post.id));
+
+    const handleCancelDelete = () => {
+        setShowDeleteConfirmation(false);
+    };
+
+    async function handleDelete(e) {
+        e.preventDefault();
+
+        try {
+            const response = await axios.delete(`/posts/${post.id}`);
+            if (response.status === 200) {
+                return router.visit(route('posts.index'));
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -82,7 +95,7 @@ const Edit = () => {
                                 Update
                             </button>
                             <button
-                                onClick={destroy}
+                                onClick={() => setShowDeleteConfirmation(true)}
                                 tabIndex="-1"
                                 type="button"
                                 className="px-4 py-2 text-white bg-red-500 rounded"
@@ -93,6 +106,16 @@ const Edit = () => {
                     </form>
                 </div>
             </div>
+
+
+            {showDeleteConfirmation && (
+                <div className="modal-wrapper">
+                    <DeletePopupModal
+                        onDelete={handleDelete}
+                        onCancel={handleCancelDelete}
+                    />
+                </div>
+            )}
         </div>
     );
 };

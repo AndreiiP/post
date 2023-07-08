@@ -51,7 +51,7 @@ class PostService {
                 ->orWhere('body', 'like', "%{$query}%");
         }
 
-        return $queryBuilder->orderBy('created_at', 'desc')->paginate($perPage)->through(function ($post) {
+        return $queryBuilder->orderBy('id', 'desc')->paginate($perPage)->through(function ($post) {
             return [
                 'id' => $post->id,
                 'title' => $post->title,
