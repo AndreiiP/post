@@ -1,9 +1,10 @@
 
-import React, { useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { router, usePage } from '@inertiajs/react'
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
-import DeletePopupModal from '../components/modals/DeletePopupModal.jsx';
+import DeletePopupModal from '../components/modals/deletePopupModal.jsx';
+import useClickOutside from '../../hooks/useClickOutside.jsx';
 
 const Edit = () => {
     const { post } = usePage().props;
@@ -12,6 +13,11 @@ const Edit = () => {
         body: post.body || "",
     });
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+    const handleClickOutside = () => {
+        setShowDeleteConfirmation(false);
+    };
+    const popupRef = useClickOutside(handleClickOutside)
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -106,10 +112,8 @@ const Edit = () => {
                     </form>
                 </div>
             </div>
-
-
             {showDeleteConfirmation && (
-                <div className="modal-wrapper">
+                <div ref={popupRef} className="modal-wrapper">
                     <DeletePopupModal
                         onDelete={handleDelete}
                         onCancel={handleCancelDelete}

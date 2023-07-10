@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DeletePopupModal = ({ onDelete, onCancel }) => {
+const deletePopupModal = ({ onDelete, onCancel }) => {
     return (
         <div className="modal-overlay">
             <div className="text-center modal-content rounded-lg">
@@ -22,4 +22,4 @@ const DeletePopupModal = ({ onDelete, onCancel }) => {
     );
 };
 
-export default DeletePopupModal;
+export default deletePopupModal;

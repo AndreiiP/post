@@ -1,9 +1,10 @@
 import { router, usePage } from "@inertiajs/react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import debounce from 'lodash.throttle';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import axios from "axios";
-import DeletePopupModal from "../components/modals/DeletePopupModal.jsx";
+import DeletePopupModal from "../components/modals/deletePopupModal.jsx";
+import useClickOutside from "../../hooks/useClickOutside.jsx";
 
 const PostList = ({ posts, setShowDeleteConfirmation, setPostId }) => {
 
@@ -83,6 +84,11 @@ const Index = () => {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [postId, setPostId] = useState(0);
 
+    const handleClickOutside = () => {
+        setShowDeleteConfirmation(false);
+    };
+    const popupRef = useClickOutside(handleClickOutside)
+
     const debounceHandleSearchInputChange = useCallback(
         debounce(event => {
             let query = "?query=" + event.target.value;
@@ -125,10 +131,6 @@ const Index = () => {
             window.location.reload();
         }
     }
-
-    useEffect(() => {
-        setPostList(posts.data);
-    }, [posts]);
 
     return (
         <>
@@ -182,7 +184,7 @@ const Index = () => {
                 </div>
             </div>
             {showDeleteConfirmation && (
-                <div className="modal-wrapper">
+                <div ref={popupRef} className="modal-wrapper">
                     <DeletePopupModal
                         onDelete={handleDelete}
                         onCancel={handleCancelDelete}
