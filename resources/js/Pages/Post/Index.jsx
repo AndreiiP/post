@@ -2,22 +2,38 @@ import { usePage } from "@inertiajs/react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import { useState } from 'react';
 import axios from "axios";
-import DeletePopupModal from "../components/modals/deletePopupModal.jsx";
+import DeletePopupModal from "./components/deletePopupModal.jsx";
 import useClickOutside from "../../hooks/useClickOutside.jsx";
-import SearchForm from "./components/searchForm.jsx";
+import PostSearchForm from "./components/postSearchForm.jsx";
 import PostTable from "./components/postTable.jsx";
 import Pagination from "./components/pagination.jsx";
+import ErrorPopupModal from "./components/errorPopupModal.jsx";
 
 const Index = () => {
-    const { posts, errors } = usePage().props;
+    const { posts } = usePage().props;
     const [postList, setPostList] = useState(posts.data);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
     const [postId, setPostId] = useState(0);
 
-    const handleClickOutside = () => {
-        setShowDeleteConfirmation(false);
+    const DELETE_CONFIRMATION = 'deleteConfirmation';
+    const ERROR_POPUP = 'errorPopup';
+
+    const handleClickOutside = (popupType) => {
+        if (popupType === DELETE_CONFIRMATION) {
+            setShowDeleteConfirmation(false);
+        } else if (popupType === ERROR_POPUP) {
+            setShowErrorPopup(false);
+        }
     };
-    const popupRef = useClickOutside(handleClickOutside)
+
+
+    const popupRef = useClickOutside(
+        () => handleClickOutside(DELETE_CONFIRMATION)
+    )
+    const errPopupRef = useClickOutside(
+        () => handleClickOutside(ERROR_POPUP)
+    )
 
     const handleCancelDelete = () => {
         setShowDeleteConfirmation(false);
@@ -33,7 +49,8 @@ const Index = () => {
                 setShowDeleteConfirmation(false)
             }
         } catch (error) {
-            console.error(error);
+            setShowDeleteConfirmation(false)
+            setShowErrorPopup(true)
         }
     };
 
@@ -60,7 +77,7 @@ const Index = () => {
                     >
                         Create Post
                     </InertiaLink>
-                    <SearchForm
+                    <PostSearchForm
                         setPostList={setPostList}
                     />
                 </div>
@@ -78,6 +95,14 @@ const Index = () => {
                     <DeletePopupModal
                         onDelete={handleDelete}
                         onCancel={handleCancelDelete}
+                    />
+                </div>
+            )}
+            {showErrorPopup && (
+                <div ref={errPopupRef} className="modal-wrapper">
+                    <ErrorPopupModal
+                        setErrorPopup={setShowErrorPopup}
+                        errorMessage={"An error occurred, please try again later"}
                     />
                 </div>
             )}

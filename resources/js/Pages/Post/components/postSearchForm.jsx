@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import debounce from 'lodash.throttle';
 import { router } from '@inertiajs/react';
 
-const SearchForm = ({ setPostList}) => {
+const PostSearchForm = ({ setPostList}) => {
     const debounceHandleSearchInputChange = useCallback(
         debounce(event => {
             let query = "?query=" + event.target.value;
@@ -27,4 +27,4 @@ const SearchForm = ({ setPostList}) => {
     );
 };
 
-export default SearchForm;
+export default PostSearchForm;

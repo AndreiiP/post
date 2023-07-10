@@ -3,8 +3,9 @@ import React, {useEffect, useRef, useState} from "react";
 import { router, usePage } from '@inertiajs/react'
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
-import DeletePopupModal from '../components/modals/deletePopupModal.jsx';
+import DeletePopupModal from './components/deletePopupModal.jsx';
 import useClickOutside from '../../hooks/useClickOutside.jsx';
+import ErrorPopupModal from "./components/errorPopupModal.jsx";
 
 const Edit = () => {
     const { post } = usePage().props;
@@ -13,11 +14,25 @@ const Edit = () => {
         body: post.body || "",
     });
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
 
-    const handleClickOutside = () => {
-        setShowDeleteConfirmation(false);
+    const DELETE_CONFIRMATION = 'deleteConfirmation';
+    const ERROR_POPUP = 'errorPopup';
+
+    const handleClickOutside = (popupType) => {
+        if (popupType === DELETE_CONFIRMATION) {
+            setShowDeleteConfirmation(false);
+        } else if (popupType === ERROR_POPUP) {
+            setShowErrorPopup(false);
+        }
     };
-    const popupRef = useClickOutside(handleClickOutside)
+
+    const popupRef = useClickOutside(
+        () => handleClickOutside(DELETE_CONFIRMATION)
+    )
+    const errPopupRef = useClickOutside(
+        () => handleClickOutside(ERROR_POPUP)
+    )
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -37,7 +52,8 @@ const Edit = () => {
                 return router.visit(route('posts.index'));
             }
         } catch (error) {
-            console.error(error);
+            setShowDeleteConfirmation(false)
+            setShowErrorPopup(true)
         }
     }
 
@@ -117,6 +133,14 @@ const Edit = () => {
                     <DeletePopupModal
                         onDelete={handleDelete}
                         onCancel={handleCancelDelete}
+                    />
+                </div>
+            )}
+            {showErrorPopup && (
+                <div ref={errPopupRef} className="modal-wrapper">
+                    <ErrorPopupModal
+                        setErrorPopup={setShowErrorPopup}
+                        errorMessage={"An error occurred, please try again later"}
                     />
                 </div>
             )}
