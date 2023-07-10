@@ -2,8 +2,8 @@ import React from 'react';
 
 const deletePopupModal = ({ onDelete, onCancel }) => {
     return (
-        <div className="modal-overlay">
-            <div className="text-center modal-content rounded-lg">
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="text-center bg-white p-8 rounded-lg">
                 <h3 className="text-lg mb-4">Are you sure you want to delete the post?</h3>
                 <button
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
