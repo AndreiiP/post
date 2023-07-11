@@ -1,22 +1,13 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useRef } from 'react';
+import useOutsideClick from "../../../hooks/useClickOutside.jsx";
 
 const deletePopupModal = ({ onDelete, onCancel, setShowDeleteConfirmation }) => {
 
     const deletePopupRef = useRef(null);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!deletePopupRef.current.contains(event.target)) {
-                setShowDeleteConfirmation(false);
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-        };
-    }, []);
+    useOutsideClick(deletePopupRef, () => {
+        setShowDeleteConfirmation(false);
+    });
 
     return (
         <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center">
