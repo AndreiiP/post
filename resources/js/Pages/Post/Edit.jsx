@@ -1,10 +1,9 @@
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {useState} from "react";
 import { router, usePage } from '@inertiajs/react'
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import axios from "axios";
 import DeletePopupModal from './components/deletePopupModal.jsx';
-import useClickOutside from '../../hooks/useClickOutside.jsx';
 import ErrorPopupModal from "./components/errorPopupModal.jsx";
 
 const Edit = () => {
@@ -15,24 +14,6 @@ const Edit = () => {
     });
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showErrorPopup, setShowErrorPopup] = useState(false);
-
-    const DELETE_CONFIRMATION = 'deleteConfirmation';
-    const ERROR_POPUP = 'errorPopup';
-
-    const handleClickOutside = (popupType) => {
-        if (popupType === DELETE_CONFIRMATION) {
-            setShowDeleteConfirmation(false);
-        } else if (popupType === ERROR_POPUP) {
-            setShowErrorPopup(false);
-        }
-    };
-
-    const popupRef = useClickOutside(
-        () => handleClickOutside(DELETE_CONFIRMATION)
-    )
-    const errPopupRef = useClickOutside(
-        () => handleClickOutside(ERROR_POPUP)
-    )
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -117,7 +98,10 @@ const Edit = () => {
                                 Update
                             </button>
                             <button
-                                onClick={() => setShowDeleteConfirmation(true)}
+                                onClick={(event) => {
+                                    setShowDeleteConfirmation(true)
+                                    event.stopPropagation()
+                                }}
                                 tabIndex="-1"
                                 type="button"
                                 className="px-4 py-2 text-white bg-red-500 rounded"
@@ -129,15 +113,16 @@ const Edit = () => {
                 </div>
             </div>
             {showDeleteConfirmation && (
-                <div ref={popupRef} className="modal-wrapper">
+                <div className="modal-wrapper">
                     <DeletePopupModal
                         onDelete={handleDelete}
                         onCancel={handleCancelDelete}
+                        setShowDeleteConfirmation={setShowDeleteConfirmation}
                     />
                 </div>
             )}
             {showErrorPopup && (
-                <div ref={errPopupRef} className="modal-wrapper">
+                <div className="modal-wrapper">
                     <ErrorPopupModal
                         setErrorPopup={setShowErrorPopup}
                         errorMessage={"An error occurred, please try again later"}

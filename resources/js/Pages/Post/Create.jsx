@@ -1,7 +1,9 @@
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import {router} from "@inertiajs/react";
 import { useState } from 'react';
+import ErrorPopupModal from "./components/errorPopupModal.jsx";
+import useClickOutside from "../../hooks/useClickOutside.jsx";
 
 const Create = () => {
     const { data, setData } = useForm({
@@ -10,6 +12,8 @@ const Create = () => {
     });
 
     const [errors, setErrors] = useState({});
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
+
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -20,9 +24,19 @@ const Create = () => {
         }, {
             onError: (errors) => {
                 setErrors(errors);
+                if (errors.error) {
+                    setErrors(errors);
+                    setShowErrorPopup(true)
+                }
             },
         });
     }
+
+    // const handleClickOutsideForErrPopup = () => {
+    //     setShowErrorPopup(false);
+    // };
+    // const errPopupRef = useClickOutside(handleClickOutsideForErrPopup, errPopupRef)
+
 
     return (
         <div className="mt-20">
@@ -79,6 +93,12 @@ const Create = () => {
                     </form>
                 </div>
             </div>
+            {showErrorPopup && (
+                <ErrorPopupModal
+                    setErrorPopup={setShowErrorPopup}
+                    errorMessage={"An error occurred, please try again later"}
+                />
+            )}
         </div>
     );
 };

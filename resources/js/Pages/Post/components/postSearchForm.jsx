@@ -1,4 +1,3 @@
-// SearchForm.jsx
 import React, { useCallback } from 'react';
 import debounce from 'lodash.throttle';
 import { router } from '@inertiajs/react';

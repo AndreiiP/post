@@ -52,9 +52,10 @@ const PostList = ({ posts, setShowDeleteConfirmation, setPostId }) => {
                     <button
                         tabIndex="3"
                         className="ml-3 px-4 py-2 text-sm text-white bg-red-500 rounded"
-                        onClick={() => {
+                        onClick={(event) => {
                             setShowDeleteConfirmation(true)
                             setPostId(id)
+                            event.stopPropagation();
                         }}
                     >
                         Delete
